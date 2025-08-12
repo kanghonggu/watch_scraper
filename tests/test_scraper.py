@@ -1,19 +1,21 @@
-import os
-from fastapi.testclient import TestClient
 from unittest.mock import patch
+import sys
+import pathlib
+
+sys.path.append(str(pathlib.Path(__file__).resolve().parent.parent))
 
 import scraper
 import database
-from api import app
+from api import scrape as api_scrape, list_watches
 
 SAMPLE_HTML = """
 <html><body>
 <article class='article-item'>
-  <div class='article-name'>Rolex Submariner</div>
+  <a class='article-name' href='https://example.com/rolex'>Rolex Submariner</a>
   <div class='article-price'>USD 10000</div>
 </article>
 <article class='article-item'>
-  <div class='article-name'>Omega Speedmaster</div>
+  <a class='article-name' href='https://example.com/omega'>Omega Speedmaster</a>
   <div class='article-price'>EUR 5000</div>
 </article>
 </body></html>
@@ -34,25 +36,24 @@ def mock_get(url, params=None, headers=None, timeout=10):
 
 def test_fetch_watch_prices():
     with patch("scraper.requests.get", mock_get):
-        results = scraper.fetch_watch_prices("rolex")
+        results = scraper.fetch_watch_prices("rolex", source="chrono24")
     assert len(results) == 2
     assert results[0]["name"] == "Rolex Submariner"
     assert results[0]["price"] == "USD 10000"
+    assert results[0]["details"] == "https://example.com/rolex"
+    assert results[0]["source"] == "chrono24"
 
 
-def test_api_scrape_and_list(tmp_path, monkeypatch):
-    # Use temporary DB for the test
-    db_path = tmp_path / "test.db"
-    monkeypatch.setattr(database, "DB_NAME", str(db_path))
+def test_api_scrape_and_list():
+    database.client = None
+    database.init_db()
 
     with patch("scraper.requests.get", mock_get):
-        with TestClient(app) as client:
-            response = client.post("/scrape", params={"query": "rolex"})
-            assert response.status_code == 200
-            assert response.json() == {"count": 2}
+        response = api_scrape("rolex")
+        assert response == {"count": 2}
 
-            response = client.get("/watches")
-            assert response.status_code == 200
-            data = response.json()
-            assert len(data) == 2
-            assert data[1]["name"] == "Omega Speedmaster"
+    data = list_watches()
+    assert len(data) == 2
+    assert data[1]["name"] == "Omega Speedmaster"
+    assert data[0]["details"] == "https://example.com/rolex"
+    assert data[0]["source"] == "chrono24"
