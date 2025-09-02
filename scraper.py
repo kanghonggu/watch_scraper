@@ -3,7 +3,13 @@
 from typing import List, Dict
 
 import requests
+from requests import HTTPError
 from bs4 import BeautifulSoup
+
+try:  # Optional dependency for bypassing basic anti-bot protections
+    import cloudscraper
+except Exception:  # pragma: no cover - fallback when library is unavailable
+    cloudscraper = None
 
 BASE_URLS = {
     "chrono24": "https://www.chrono24.com/search/index.htm",
@@ -38,7 +44,13 @@ def fetch_watch_prices(query: str, source: str = "chrono24") -> List[Dict[str, s
     params = {"query": query, "dosearch": "true"} if source == "chrono24" else None
     try:
         response = requests.get(url, params=params, headers=headers, timeout=10)
+
+        if getattr(response, "status_code", None) == 403 and cloudscraper is not None:
+            scraper = cloudscraper.create_scraper()
+            response = scraper.get(url, params=params, headers=headers, timeout=10)
         response.raise_for_status()
+    except HTTPError:
+        raise
     except requests.RequestException as exc:  # pragma: no cover - network error handling
         raise RuntimeError(f"Failed to fetch data from {source}: {exc}") from exc
 

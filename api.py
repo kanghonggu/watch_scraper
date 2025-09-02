@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from requests import HTTPError
 from scraper import fetch_watch_prices
 from database import init_db, insert_watches, get_watches
 
@@ -14,6 +15,7 @@ def startup() -> None:
 def scrape(query: str, source: str = "chrono24"):
     try:
         watches = fetch_watch_prices(query, source)
+
     except RuntimeError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     if not watches:
