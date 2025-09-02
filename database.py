@@ -14,7 +14,8 @@ def init_db() -> None:
     """Initialize the MongoDB connection and ensure indexes exist."""
     global client
     if client is None:
-        client = MongoClient()
+        # Connect to a local MongoDB instance on the default port (27017)
+        client = MongoClient("mongodb://localhost:27017")
     client[DB_NAME][COLLECTION_NAME].create_index("name")
 
 
