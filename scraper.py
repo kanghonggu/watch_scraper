@@ -51,8 +51,7 @@ def fetch_watch_prices(query: str, source: str = "chrono24") -> List[Dict[str, s
     except HTTPError:
         raise
     except requests.RequestException as exc:  # pragma: no cover - network error handling
-        raise RuntimeError(f"Failed to fetch data from {source}: {exc}") from exc
-
+        raise RuntimeError(f"{source}에서 데이터를 가져오는 데 실패했습니다: {exc}") from exc
     soup = BeautifulSoup(response.text, "html.parser")
     watches: List[Dict[str, str]] = []
     for item in soup.select("article"):
