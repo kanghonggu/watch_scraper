@@ -44,7 +44,6 @@ def fetch_watch_prices(query: str, source: str = "chrono24") -> List[Dict[str, s
     params = {"query": query, "dosearch": "true"} if source == "chrono24" else None
     try:
         response = requests.get(url, params=params, headers=headers, timeout=10)
-
         if getattr(response, "status_code", None) == 403 and cloudscraper is not None:
             scraper = cloudscraper.create_scraper()
             response = scraper.get(url, params=params, headers=headers, timeout=10)

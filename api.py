@@ -15,7 +15,10 @@ def startup() -> None:
 def scrape(query: str, source: str = "chrono24"):
     try:
         watches = fetch_watch_prices(query, source)
-
+    except HTTPError as exc:
+        status = exc.response.status_code if exc.response else 502
+        detail = f"Failed to fetch data from {source}: {exc}"
+        raise HTTPException(status_code=status, detail=detail) from exc
     except RuntimeError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     if not watches:
