@@ -21,6 +21,7 @@ def scrape(query: str, source: str = "chrono24"):
             detail = f"{source}에서 접근이 거부되었습니다. 잠시 후 다시 시도하세요."
         else:
             detail = f"{source}에서 데이터를 가져오지 못했습니다: {exc}"
+
         raise HTTPException(status_code=status, detail=detail) from exc
     except RuntimeError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
