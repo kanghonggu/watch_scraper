@@ -12,7 +12,10 @@ def startup() -> None:
 
 @app.post("/scrape")
 def scrape(query: str, source: str = "chrono24"):
-    watches = fetch_watch_prices(query, source)
+    try:
+        watches = fetch_watch_prices(query, source)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
     if not watches:
         raise HTTPException(status_code=404, detail="No watches found")
     inserted = insert_watches(watches)
