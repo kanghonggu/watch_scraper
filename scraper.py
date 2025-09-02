@@ -23,11 +23,24 @@ def fetch_watch_prices(query: str, source: str = "chrono24") -> List[Dict[str, s
         A list of dictionaries with watch ``name``, ``price``, ``details`` and ``source`` fields.
     """
 
-    headers = {"User-Agent": "Mozilla/5.0"}
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/115.0.0.0 Safari/537.36"
+        ),
+        "Accept": (
+            "text/html,application/xhtml+xml,application/xml;q=0.9," "image/avif,image/webp,image/apng,*/*;q=0.8"
+        ),
+        "Accept-Language": "en-US,en;q=0.9",
+    }
     url = BASE_URLS.get(source, BASE_URLS["chrono24"])
     params = {"query": query, "dosearch": "true"} if source == "chrono24" else None
-    response = requests.get(url, params=params, headers=headers, timeout=10)
-    response.raise_for_status()
+    try:
+        response = requests.get(url, params=params, headers=headers, timeout=10)
+        response.raise_for_status()
+    except requests.RequestException as exc:  # pragma: no cover - network error handling
+        raise RuntimeError(f"Failed to fetch data from {source}: {exc}") from exc
 
     soup = BeautifulSoup(response.text, "html.parser")
     watches: List[Dict[str, str]] = []
