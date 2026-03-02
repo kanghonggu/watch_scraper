@@ -50,10 +50,8 @@ def _find_first(soup: BeautifulSoup, selectors: List[str]):
     return None
 
 def _extract_title(soup: BeautifulSoup) -> str:
-    og = soup.select_one("meta[property='og:title']")
-    if og and og.get("content"):
-        return _clean_spaces(og.get("content"))
-    h1 = _find_first(soup, ["h1", ".product-title", ".prd-name", ".title"])
+
+    h1 = _find_first(soup, ["h4"])
     if h1:
         return _clean_spaces(_text(h1))
     if soup.title and soup.title.string:
@@ -285,7 +283,6 @@ def parse_detail(html: str, fallback_base_url: str) -> Dict:
     description = _extract_description(soup)
     info = _extract_table_like_info(soup)
     viver_info = _extract_viver_specific(soup)
-
     merged = {
         "name": viver_info.get("name", "") or title,
         "brand": viver_info.get("brand") or info.get("brand", ""),

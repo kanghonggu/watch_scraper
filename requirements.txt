@@ -1,6 +1,10 @@
+selenium
+undetected-chromedriver
+pymongo
+beautifulsoup4
+requests
+cloudscraper
 fastapi
 uvicorn
-requests
-beautifulsoup4
-cloudscraper
-pytest
+selenium-stealth
+boto3
