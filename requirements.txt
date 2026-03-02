@@ -7,4 +7,5 @@ cloudscraper
 fastapi
 uvicorn
 selenium-stealth
-boto3
+boto3==1.34.0
+botocore==1.34.0

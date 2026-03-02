@@ -1,19 +1,17 @@
 import os
-import pickle
-import time
-import boto3
 import random
 import re
+import time
 import urllib.parse as urlparse
 from datetime import datetime, timezone, timedelta
 from typing import List, Dict
 
-from bs4 import BeautifulSoup
 import undetected_chromedriver as uc
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from bs4 import BeautifulSoup
 from pymongo import MongoClient
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 class NaverCafeScraper:
